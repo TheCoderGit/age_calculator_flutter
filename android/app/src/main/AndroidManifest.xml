@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="world.thecoder.age_calculator_flutter">
    <application
+
+
         android:label="age_calculator_flutter"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2556925527469330~9241576105"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
