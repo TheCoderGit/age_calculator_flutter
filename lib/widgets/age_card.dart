@@ -15,7 +15,7 @@ class AgeCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16,horizontal: 2),
       child: Expanded(
         child: Card(
-          color: Colors.orange[900],
+          color: Colors.white54,
           shadowColor: Colors.green,
           elevation: 4,
           child: Padding(

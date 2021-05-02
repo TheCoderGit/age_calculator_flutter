@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AgeProvider with ChangeNotifier {
   DateTime _now = DateTime.now();
+  DateTime selectedDate;
 
   int insertedYear, insertedMonth, insertedDay, insertedHour, insertedMinute;
   int currentYear, currentMonth, currentDay;
@@ -24,6 +25,8 @@ class AgeProvider with ChangeNotifier {
       insertedDay = value.day;
       insertedMonth = value.month;
       insertedYear = value.year;
+
+      selectedDate = value;
 
       if (currentDay < insertedDay) {
         if (bigMonths.contains(currentMonth)) {

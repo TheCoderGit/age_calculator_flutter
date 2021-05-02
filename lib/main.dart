@@ -1,65 +1,65 @@
+import 'package:age_calculator_flutter/services/ad_provider.dart';
 import 'package:age_calculator_flutter/services/age_provider.dart';
 import 'package:age_calculator_flutter/widgets/age_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  runApp(MyApp());
+
+  runApp(
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_)=> AgeProvider()),
+      ChangeNotifierProvider(create: (_)=> AdProvider())
+    ],
+    child:MyApp(),
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AgeProvider>(
-      create: (_) => AgeProvider(),
-      child: MaterialApp(
+    return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: HomePage(),
-      ),
-    );
+        theme: ThemeData(
+          primaryColor: Colors.lightBlue,
+          accentColor: Colors.blueGrey[300],
+          primarySwatch: Colors.lightBlue,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.blue,)
+          ),
+          )
+      );
   }
 }
 
-class HomePage extends StatefulWidget {
-  final BannerAd _bannerAd = BannerAd(
-      size: AdSize.banner,
-      adUnitId: 'ca-app-pub-2556925527469330/9886505794',
-      listener: AdListener(),
-      request: AdRequest());
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  void dispose() {
-    super.dispose();
-    widget._bannerAd.dispose();
-  }
+class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    widget._bannerAd.load();
+    context.read<AdProvider>().bannerAd.load();
     return Scaffold(
-      backgroundColor: Colors.teal[50],
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text('Age Calculator'),
       ),
       body: Stack(
         alignment: Alignment.center,
         children: [
-          Positioned(
+          Positioned(//the banner ad
             bottom: 0,
             child: Container(
-              height: widget._bannerAd.size.height.toDouble(),
-              width: widget._bannerAd.size.width.toDouble(),
+              height: context.read<AdProvider>().bannerAd.size.height.toDouble(),
+              width: context.read<AdProvider>().bannerAd.size.width.toDouble(),
               child: AdWidget(
-                ad: widget._bannerAd,
+                ad: context.read<AdProvider>().bannerAd,
               ),
             ),
           ),
@@ -67,38 +67,9 @@ class _HomePageState extends State<HomePage> {
             top: 0,
             child: Column(
               children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Card(
-                    color: Colors.amber,
-                    elevation: 8,
-                    shadowColor: Colors.black26,
-                    margin: EdgeInsets.all(8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AgeCard(
-                          textNumber:
-                              '${Provider.of<AgeProvider>(context).ageYears ?? 0}',
-                          textDescription: 'Years',
-                        ),
-                        AgeCard(
-                          textNumber:
-                              '${Provider.of<AgeProvider>(context).ageMonths ?? 0}',
-                          textDescription: 'Months',
-                        ),
-                        AgeCard(
-                          textNumber:
-                              '${Provider.of<AgeProvider>(context).ageDays ?? 0}',
-                          textDescription: 'Days',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
                 ElevatedButton(
                   onPressed: () {
-                    Provider.of<AgeProvider>(context, listen: false)
+                    context.read<AgeProvider>()
                         .datePicker(context);
                   },
                   child: Text(
@@ -109,11 +80,43 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                Text(
-                  '${Provider.of<AgeProvider>(context).ageDays ?? 0}',
+                Text( Provider.of<AgeProvider>(context).ageDays != null ?
+                  'You Selected : ${context.read<AgeProvider>().insertedDay}'
+                   ' ${DateFormat('MMMM').format(context.read<AgeProvider>().selectedDate)}' :
+                   'nothing selected yet',
+                   //Provider.of<AgeProvider>(context).insertedMonth
                   style: TextStyle(
                     fontSize: 20,
-                    color: Colors.amber,
+                    color: Colors.green[900],
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Card(
+                    color: Theme.of(context).primaryColor,
+                    elevation: 8,
+                    shadowColor: Colors.black26,
+                    margin: EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AgeCard(
+                          textNumber:
+                              '${context.watch<AgeProvider>().ageYears ?? 0}',
+                          textDescription: 'Years',
+                        ),
+                        AgeCard(
+                          textNumber:
+                              '${context.watch<AgeProvider>().ageMonths ?? 0}',
+                          textDescription: 'Months',
+                        ),
+                        AgeCard(
+                          textNumber:
+                              '${context.watch<AgeProvider>().ageDays ?? 0}',
+                          textDescription: 'Days',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
